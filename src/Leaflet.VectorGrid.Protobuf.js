@@ -153,8 +153,36 @@ L.VectorGrid.Protobuf = L.VectorGrid.extend({
 
 				for (var i=0; i<json.layers[layerName].length; i++) {
 					var feat = json.layers[layerName].feature(i);
+
+          if(layerName === 'speeds') {
+
+            if(i !== 0) {              
+              var current = feat.loadGeometry()[0]
+              var previous = json.layers[layerName].feature(i -1).loadGeometry()[0]
+
+              if(current[0].x === previous[1].x && current[0].y === previous[1].y && current[1].x === previous[0].x && current[1].y === previous[0].y) {
+                feat.properties.oppositeDirection = json.layers[layerName].feature(i -1).properties
+                feat.properties.oppositeDirection.geometry = json.layers[layerName].feature(i -1).loadGeometry()
+              }
+
+            }
+
+            if(i !== (json.layers[layerName].length - 1)) {
+              var current = feat.loadGeometry()[0]
+              var next = json.layers[layerName].feature(i +1).loadGeometry()[0]
+
+              if(current[0].x === next[1].x && current[0].y === next[1].y && current[1].x === next[0].x && current[1].y === next[0].y) {
+                feat.properties.oppositeDirection = json.layers[layerName].feature(i +1).properties
+                feat.properties.oppositeDirection.geometry = json.layers[layerName].feature(i +1).loadGeometry()
+              }
+
+            }
+          }
+          
+          feat.properties.geometry = feat.loadGeometry();
 					feat.geometry = feat.loadGeometry();
 					feats.push(feat);
+
 				}
 
 				json.layers[layerName].features = feats;
